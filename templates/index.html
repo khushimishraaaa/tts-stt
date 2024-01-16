@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Speech and Speech-to-Text Web App</title>
+  
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url('https://static.vecteezy.com/system/resources/previews/013/258/719/original/spider-webs-background-blue-style-with-shadow-use-of-background-wallpaper-presentation-etc-free-vector.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            margin-left: 80px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: left; /* Align text to the left */
+            width: 500px;
+        }
+
+        #text_input_container, #speech_icon_container {
+            display: none;
+        }
+
+        #status_message {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #app {
+  text-align: center;
+  font-size: 50px;
+  background-image: linear-gradient(
+    -225deg,
+    #231557 0%,
+    #44107a 29%,
+    #ff1361 67%,
+    #fff800 100%
+  );
+  background-clip: border-box;
+  text-fill-color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  animation: textclip 2s linear infinite;
+}
+
+@keyframes textclip {
+  to {
+    background-position: 200% center;
+  }
+}
+
+
+        h1 {
+            text-align: left; 
+            margin-bottom: 20px; 
+        }
+
+        #tagline {
+            text-align: left; 
+            font-size: 1.2em; 
+            margin-bottom: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+<script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
+    <div class="container mt-5">
+        
+        <p id="tagline">Speak, Type, Connect: Your Words, Your Way.</p>
+    
+        <button class="btn btn-primary" onclick="showTextInput()">Type</button>
+
+        
+        <button class="btn btn-success ml-2" onclick="showMicrophoneIcon()">Speak</button>
+
+        
+        <div id="text_input_container" class="mt-3">
+            <form action="/tts" method="post">
+                <label for="text_input">Type Text:</label>
+                <input type="text" id="text_input" name="text_input" class="form-control" required>
+                
+                <label for="voice_choice" class="mt-2">Choose a voice:</label>
+                <select id="voice_choice" name="voice_choice" class="form-control">
+                    <option value="default">Default</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary mt-2">Speak</button>
+            </form>
+        </div>
+
+        
+        <div id="speech_icon_container" class="mt-3">
+            <img src="microphone_icon.png" alt="Microphone Icon" onclick="startSpeechToText()">
+            <div id="status_message" class="mt-2"></div>
+        </div>
+    </div>
+
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let recognition;
+
+        function showTextInput() {
+            document.getElementById("text_input_container").style.display = "block";
+            document.getElementById("speech_icon_container").style.display = "none";
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+
+        function showMicrophoneIcon() {
+            document.getElementById("text_input_container").style.display = "none";
+            document.getElementById("speech_icon_container").style.display = "block";
+            startSpeechToText();
+        }
+
+        
+        function startSpeechToText() {
+            document.getElementById("status_message").innerText = "Listening...";
+
+            recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = true;
+
+            recognition.onresult = function (event) {
+                const result = event.results[0][0].transcript;
+                document.getElementById("text_input").value = result;
+            }
+
+            recognition.onend = function () {
+                document.getElementById("status_message").innerText = "Recognizing...";
+                setTimeout(() => {
+                    document.getElementById("status_message").innerText = "Translation: " + document.getElementById("text_input").value;
+                    showMicrophoneIcon();  // Uncomment this line if you want to allow continuous translations
+                }, 1000);
+            }
+
+            recognition.onerror = function (event) {
+                document.getElementById("status_message").innerText = "Error: Unable to recognize audio.";
+            }
+
+            recognition.start();
+
+
+        }
+
+        var app = document.getElementById('app');
+
+var typewriter = new Typewriter(app, {
+    loop: true
+});
+
+typewriter.typeString('Text to Speech')
+    .pauseFor(2500)
+    .deleteAll()
+    .typeString('Speech to Text ')
+    .pauseFor(2500)
+    .deleteAll()
+    .typeString('<strong>Convert HERE!</strong>')
+    .pauseFor(2500)
+    .start();
+    </script>
+</body>
+</html>
